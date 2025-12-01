@@ -8,9 +8,9 @@ Context:
 
 Acknowledgement:
 	
-	- "spotipy": Python module for Spotify's API (https://pypi.org/project/spotipy/)
+	- "spotipy": Python module for Spotify's API (https://pypi.org/DocumentClasses/spotipy/)
 
-	- "billboard": Python module for Billboard's API (https://pypi.org/project/billboard.py/)
+	- "billboard": Python module for Billboard's API (https://pypi.org/DocumentClasses/billboard.py/)
 
 	- Spotify, the company itself. For keeping a database of such in-depth details of every track in their library. And for exposing their API for the world to use.
 

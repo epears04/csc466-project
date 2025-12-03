@@ -11,6 +11,7 @@ public class TreeNode {
 
     // leaf node
     public TreeNode(int prediction) {
+        this.attributeIndex = -1;
         this.children = null;
         this.isLeaf = true;
         this.prediction = prediction;
@@ -21,5 +22,6 @@ public class TreeNode {
         this.attributeIndex = attributeIndex;
         this.children = children;
         this.isLeaf = false;
+        this.prediction = prediction;
     }
 }

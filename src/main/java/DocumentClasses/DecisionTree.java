@@ -2,17 +2,23 @@ package DocumentClasses;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 // single decision tree
 public class DecisionTree {
     private TreeNode root;
     private int maxDepth;
     private double threshold;
+    private int maxFeatures;
+    private Random rand;
 
-    public DecisionTree(int maxDepth, double threshold, Matrix matrix, ArrayList<Integer> attributes, ArrayList<Integer> rows) {
+    public DecisionTree(int maxDepth, double threshold, Matrix matrix,
+                        ArrayList<Integer> attributes, ArrayList<Integer> rows, Random rand) {
         this.root = makeTree(matrix, attributes, rows, 0);
         this.maxDepth = maxDepth;
         this.threshold = threshold;
+        this.rand = rand;
+        this.root = makeTree(matrix, attributes, rows, 0);
     }
 
     public TreeNode getRoot() {
@@ -56,5 +62,26 @@ public class DecisionTree {
         }
         return node;
     }
+
+    //predict feature to Decsion tree, single path though a single tree
+    //giving one prediction
+    public int predict(int[] instance) {
+        TreeNode node = root;
+
+        while (!node.isLeaf) {
+            int attr = node.attributeIndex;
+            int value = instance[attr];
+
+            TreeNode child = node.children.get(value);
+
+            if (child == null) {
+                // unseen value at this node -> fallback to majority label stored at this node
+                return node.prediction;
+            }
+            node = child;
+        }
+        return node.prediction;
+    }
+
 
 }

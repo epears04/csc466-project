@@ -76,8 +76,7 @@ public class RandomForest {
                     entropyThreshold,
                     matrix,
                     attributes,
-                    rows,
-                    rand
+                    rows
             );
 
             trees.add(tree);

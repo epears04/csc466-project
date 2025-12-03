@@ -6,17 +6,14 @@ import java.util.Random;
 
 // single decision tree
 public class DecisionTree {
-    private TreeNode root;
-    private int maxDepth;
-    private double threshold;
-    private int maxFeatures;
-    private Random rand;
+    private final TreeNode root;
+    private final int maxDepth;
+    private final double threshold;
 
     public DecisionTree(int maxDepth, double threshold, Matrix matrix,
-                        ArrayList<Integer> attributes, ArrayList<Integer> rows, Random rand) {
+                        ArrayList<Integer> attributes, ArrayList<Integer> rows) {
         this.maxDepth = maxDepth;
         this.threshold = threshold;
-        this.rand = rand;
         this.root = makeTree(matrix, attributes, rows, 0);
     }
 

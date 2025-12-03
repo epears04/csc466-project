@@ -46,7 +46,7 @@ public class App {
         Matrix trainMatrix = new Matrix(trainData, LABEL_INDEX);
 
         // Create and train the RandomForest
-        int numTrees = 50;   // start small increase later
+        int numTrees = 20;   // start small increase later
         int maxFeatures = 0; // 0 = use sqrt(#attributes) rule inside tree
         int maxDepth = 10;    // deeper trees => more complex model
         long seed = 42L;
@@ -67,12 +67,12 @@ public class App {
             System.out.println("Training complete.");
 
             // Evaluate on training, validation, and test sets
-            double trainAcc = evaluate(forest, trainData);
-            double valAcc   = evaluate(forest, valData);
+//            double trainAcc = evaluate(forest, trainData);
+//            double valAcc   = evaluate(forest, valData);
             double testAcc  = evaluate(forest, testData);
 
-            System.out.printf("Accuracy on TRAIN: %.2f%%%n", trainAcc * 100.0);
-            System.out.printf("Accuracy on VAL:   %.2f%%%n", valAcc * 100.0);
+//            System.out.printf("Accuracy on TRAIN: %.2f%%%n", trainAcc * 100.0);
+//            System.out.printf("Accuracy on VAL:   %.2f%%%n", valAcc * 100.0);
             System.out.printf("Accuracy on TEST:  %.2f%%%n", testAcc * 100.0);
         }
     }
@@ -82,14 +82,24 @@ public class App {
      */
     public static double evaluate(RandomForest forest, int[][] dataset) {
         int correct = 0;
+        int[][] confusionMatrix = new int[2][2];
         for (int i = 0; i < dataset.length; i++) {
             int[] row = dataset[i];
             int label = row[LABEL_INDEX];
             int pred = forest.predict(row);
+            confusionMatrix[label][pred]++;
             if (label == pred) {
                 correct++;
             }
         }
+
+        // print confusion matrix
+        System.out.println("Confusion Matrix (rows = actual, cols = predicted)");
+        System.out.println("               Predicted 0    Predicted 1");
+        System.out.printf("Actual 0 (normal):   %8d      %8d%n",
+                confusionMatrix[0][0], confusionMatrix[0][1]);
+        System.out.printf("Actual 1 (phishing): %8d      %8d%n",
+                confusionMatrix[1][0], confusionMatrix[1][1]);
         return correct / (double) dataset.length;
     }
 

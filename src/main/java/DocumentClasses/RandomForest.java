@@ -52,23 +52,31 @@ public class RandomForest {
     }
 
     // training fit model
-    public void fit(Matrix matrix) {
+    public void fit(Matrix matrix, String bagging_method) {
         ArrayList<Integer> allRows = matrix.findAllRows();
         ArrayList<Integer> allAttributes = matrix.findAllColumns(); // excludes labelIndex
 
         trees.clear();
 
         for (int t = 0; t < numTrees; t++) {
-            // 1. bootstrap sample of rows
-            ArrayList<Integer> sampleRows = getRandomSamples(allRows.size());
+            ArrayList<Integer> rows = allRows;
+            ArrayList<Integer> attributes = allAttributes;
 
-            // 2. build a DecisionTree on this sample
+            if (bagging_method.equals("rows")) {
+                rows = getRandomSamples(allRows.size());
+            } else if (bagging_method.equals("attributes")) {
+                attributes = getRandomAttributes(allAttributes);
+            } else if (bagging_method.equals("both")) {
+                rows = getRandomSamples(allRows.size());
+                attributes = getRandomAttributes(allAttributes);
+            }
+
             DecisionTree tree = new DecisionTree(
                     maxDepth,
                     entropyThreshold,
                     matrix,
-                    allAttributes,
-                    sampleRows,
+                    attributes,
+                    rows,
                     rand
             );
 

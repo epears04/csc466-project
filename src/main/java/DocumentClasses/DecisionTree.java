@@ -14,15 +14,10 @@ public class DecisionTree {
 
     public DecisionTree(int maxDepth, double threshold, Matrix matrix,
                         ArrayList<Integer> attributes, ArrayList<Integer> rows, Random rand) {
-        this.root = makeTree(matrix, attributes, rows, 0);
         this.maxDepth = maxDepth;
         this.threshold = threshold;
         this.rand = rand;
         this.root = makeTree(matrix, attributes, rows, 0);
-    }
-
-    public TreeNode getRoot() {
-        return root;
     }
 
     private TreeNode makeTree(Matrix matrix, ArrayList<Integer> attributes, ArrayList<Integer> rows, int level) {

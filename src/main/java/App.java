@@ -3,9 +3,7 @@ import DocumentClasses.RandomForest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 // main class
 public class App {
@@ -18,14 +16,16 @@ public class App {
 
     public static void main(String[] args) {
         // Adjust these paths if needed based on where the CSVs actually live
-        String trainPath = "csc466-project/src/main/java/DocumentClasses/train_filtered.csv";
-        String valPath   = "csc466-project/src/main/java/DocumentClasses/val_filtered.csv";
-        String testPath  = "csc466-project/src/main/java/DocumentClasses/test_filtered.csv";
+        String trainPath = "data/train_inflated_binned.csv";
+        String valPath   = "data/val_binned.csv";
+        String testPath  = "data/test_binned.csv";
 
         // Load datasets
-        int[][] trainData = process(trainPath);
-        int[][] valData   = process(valPath);
-        int[][] testData  = process(testPath);
+        HashMap<String, Integer> sourceMap = new HashMap<>();
+        HashMap<String, Integer> tldMap = new HashMap<>();
+        int[][] trainData = process(trainPath, sourceMap, tldMap);
+        int[][] valData   = process(valPath, sourceMap, tldMap);
+        int[][] testData  = process(testPath, sourceMap, tldMap);
 
         // training data size
         int maxTrainRows = 100000;
@@ -59,18 +59,22 @@ public class App {
                 seed
         );
 
-        System.out.println("Training RandomForest on " + trainData.length + " rows...");
-        forest.fit(trainMatrix);
-        System.out.println("Training complete.");
+        String[] baggingMethods = {"rows", "attributes", "both"};
+        for (String method : baggingMethods) {
+            System.out.println("Method: " + method);
+            System.out.println("Training RandomForest on " + trainData.length + " rows...");
+            forest.fit(trainMatrix, method);
+            System.out.println("Training complete.");
 
-        // Evaluate on training, validation, and test sets
-        double trainAcc = evaluate(forest, trainData);
-        double valAcc   = evaluate(forest, valData);
-        double testAcc  = evaluate(forest, testData);
+            // Evaluate on training, validation, and test sets
+            double trainAcc = evaluate(forest, trainData);
+            double valAcc   = evaluate(forest, valData);
+            double testAcc  = evaluate(forest, testData);
 
-        System.out.printf("Accuracy on TRAIN: %.2f%%%n", trainAcc * 100.0);
-        System.out.printf("Accuracy on VAL:   %.2f%%%n", valAcc * 100.0);
-        System.out.printf("Accuracy on TEST:  %.2f%%%n", testAcc * 100.0);
+            System.out.printf("Accuracy on TRAIN: %.2f%%%n", trainAcc * 100.0);
+            System.out.printf("Accuracy on VAL:   %.2f%%%n", valAcc * 100.0);
+            System.out.printf("Accuracy on TEST:  %.2f%%%n", testAcc * 100.0);
+        }
     }
 
     /**
@@ -96,7 +100,7 @@ public class App {
      * - Stops parsing a row when it hits the first non-numeric token (e.g., source, tld, url).
      * - Parses numeric columns and casts to int.
      */
-    public static int[][] process(String filename) {
+    public static int[][] process(String filename, HashMap<String, Integer> sourceMap, HashMap<String, Integer> tldMap) {
         File file = new File(filename);
         List<int[]> rows = new ArrayList<>();
 
@@ -120,8 +124,8 @@ public class App {
                 // Collect numeric tokens from the start of the row
                 ArrayList<Integer> numericValues = new ArrayList<>();
 
-                for (String token : tokens) {
-                    token = token.trim();
+                for (int i = 0; i < tokens.length; i++) {
+                    String token = tokens[i].trim();
                     if (token.isEmpty()) {
                         continue;
                     }
@@ -130,8 +134,28 @@ public class App {
                         double value = Double.parseDouble(token);
                         numericValues.add((int) value);
                     } catch (NumberFormatException e) {
-                        // First non-numeric token: stop parsing this row
-                        break;
+                        // map string features (source and tld) into classes
+                        if (i == 36) {
+                            if (sourceMap.containsKey(token)) {
+                                int sourceVal = sourceMap.get(token);
+                                numericValues.add(sourceVal);
+                            } else {
+                                int id = sourceMap.size() + 1;
+                                sourceMap.put(token, id);
+                                numericValues.add(id);
+                            }
+                        } else if (i == 37) {
+                            if (tldMap.containsKey(token)) {
+                                int tldVal = tldMap.get(token);
+                                numericValues.add(tldVal);
+                            } else {
+                                int id = tldMap.size() + 1;
+                                tldMap.put(token, id);
+                                numericValues.add(id);
+                            }
+                        } else {
+                            break;
+                        }
                     }
                 }
 
